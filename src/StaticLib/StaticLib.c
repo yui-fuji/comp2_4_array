@@ -34,28 +34,63 @@ void release(my_array* ar)
 // my_array の要素数を変更する(以前の値は要素が同じ範囲で残す)
 void resize(my_array* ar, int n)
 {
-	// ToDo:配列の要素数を変更しよう！(reallocは禁止)
+	if (ar == NULL) return;
+	if (n <= 0)
+	{
+		//サイズが0以下なら解放
+		release(ar);
+		return;
+	}
+
+	int* new_addr = (int*)malloc(sizeof(int) * n);
+	if (new_addr == NULL) return; // メモリ確保失敗
+
+	// コピーする範囲を決定（小さい方まで）
+	int min = (n < ar->num) ? n : ar->num;
+
+	for (int i = 0; i < min; i++) 
+	{
+		new_addr[i] = ar->addr[i];
+	}
+
+	// 新しい要素が増えた場合は0で初期化
+	for (int i = min; i < n; i++) 
+	{
+		new_addr[i] = 0;  //オーバーランをしたのほうで防ぐ
+	}
+
+	// 古いメモリを解放して更新
+	free(ar->addr);
+	ar->addr = new_addr;
+	ar->num = n;
 }
 
 // my_array のindex番目の要素にvalを設定する
 // index が確保されていない場所を指していたら返り値をfalseにする（設定出来たらtrue）
 bool set(my_array* ar, int index, int val)
 {
-	// ToDo:配列の要素を変更しよう！
-	return false;
+	if (ar == NULL) return false;
+	if (ar->addr == NULL) return false;
+	if (index < 0 || index >= ar->num) return false; //インデックス範囲外ならリターンしてオーバーランを防ぐ
+
+	ar->addr[index] = val;
+	return true;
 }
 
 // my_array のindex番目の要素を取得する
 // index が確保されていない場所を指していたら0を返す
 int get(const my_array* ar, int index)
 {
-	// ToDo:要素を所得して、indexがおかしかったら0を返そう
-	return -1;
+	if (ar == NULL) return 0;
+	if (index < 0 || index >= ar->num) return 0;
+
+	return ar->addr[index];
+
 }
 
 // my_array の要素数を取得する
 int size(const my_array* ar)
 {
-	// ToDo: 配列の要素数を返そう
-	return -1;
+	if (ar == NULL) return 0;
+	return ar->num;
 }
